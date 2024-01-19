@@ -1,0 +1,34 @@
+{% extends 'pointqueapp/base.html' %}
+{% load static %}
+{% block additional_css %}
+<link rel="stylesheet" href="{% static 'pointqueapp/css/index.css' %}">
+{% endblock %}
+{% block content %}
+<body>
+    {% if user.is_authenticated %}
+    <h1>Welcome, {{ user.username }}</h1>
+    {% else %}
+    <div class="form">
+        <form method="post">
+            
+            <h2 id="login-header">Login:</h2>
+            {% csrf_token %}
+    
+            <div class="form-group">
+                {{ form.username }}
+            </div>
+    
+            <div class="form-group">
+                
+                {{ form.password }}
+            </div>
+    
+            <button type="submit">Login
+                <i class="bi bi-arrow-right-circle"></i>
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</html>
+{% endblock %}
+```

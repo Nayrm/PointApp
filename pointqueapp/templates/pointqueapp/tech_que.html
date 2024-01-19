@@ -1,0 +1,96 @@
+{% extends 'pointqueapp/base.html' %}
+{% load static %}
+{% block additional_css %}
+<link rel="stylesheet" href="{% static 'pointqueapp/css/techque.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="mainbody">
+    <div class="form">
+    <h2 id="login-header">Add piece to Line:</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ initial_form.as_p }}
+        <button type="submit" name="initial_form">Submit</button>
+    </form>
+    </div>
+
+    <div class="form">
+        <h2 id="login-header">Add piece to Queue:</h2>
+        <form method="post">
+            {% csrf_token %}
+            <!-- Render other fields of complete_form -->
+            {% for field in complete_form %}
+                {% if field.name != 'repair' and field.name != 'part' %}
+                    <p>{{ field.label_tag }} {{ field }}</p>
+                {% endif %}
+            {% endfor %}
+    
+            <!-- Scrollable checkbox area -->
+            {% if complete_form.repair %}
+            <label for="{{ complete_form.repair.id_for_label }}">{{ complete_form.repair.label }}</label>
+            <div class="scrollable-checkboxes">
+                {% for checkbox in complete_form.repair %}
+                <div class="checkbox-inline">
+                    {{ checkbox.tag }}  <!-- This is the actual checkbox input -->
+                    <label for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Scrollable checkbox area for 'part' -->
+        {% if complete_form.part %}
+            <label for="{{ complete_form.part.id_for_label }}">{{ complete_form.part.label }}</label>
+            <div class="scrollable-checkboxes">
+                {% for checkbox in complete_form.part %}
+                <div class="checkbox-inline">
+                    {{ checkbox.tag }}  <!-- This is the actual checkbox input -->
+                    <label for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+            
+    
+            <button type="submit" name="complete_form">Submit</button>
+        </form>
+    </div>
+
+    <div class="queue">
+        <h2>Queue:</h2>
+        <table>
+            <tr>
+                <th>Tech:</th>
+                <th>Route:</th>
+                <th>SKU:</th>
+                <th>LP:</th>
+                <th>Line Time:</th>
+                <th>Start Time:</th>
+                <th>Mark Complete:</th>
+            </tr>
+            {% for piece in queue %}
+            <tr>
+                <td>{{ piece.associate }}</td>
+                <td>{{ piece.route }}</td>
+                <td>{{ piece.sku }}</td>
+                <td>{{ piece.lp}}</td>
+                <td>{{ piece.line_time|time:"" }}</td>
+                <td>{{ piece.start_time|time:"" }}</td>
+                <td>
+                    <form action="{% url 'pointqueapp:update_status' piece.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">Complete</button>
+                    </form>
+                </td>
+                
+            </tr>
+            {% endfor %}
+    </div>
+</div>
+<!-- Modal Structure -->
+
+
+</body>
+
+{% endblock %}
+```

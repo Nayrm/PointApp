@@ -1,0 +1,11 @@
+{% extends 'pointqueapp/base.html' %}
+{% load static %}
+{% block additional_css %}
+<link rel="stylesheet" href="{% static 'crud_app/css/logout.css' %}">
+{% endblock %}
+{% block content %}
+<div id="logout">
+<h1>Logged Out!</h1>
+<a href="{% url 'pointqueapp:index' %}">Return to Login</a>
+</div>
+{% endblock %}
