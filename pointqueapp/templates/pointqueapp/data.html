@@ -1,0 +1,157 @@
+{% extends 'pointqueapp/base.html' %}
+{% load static %}
+{% block additional_css %}
+<link rel="stylesheet" href="{% static 'pointqueapp/css/data.css' %}">
+{% endblock %}
+{% block content %}
+<div class="mainbody">
+<div class="data">
+    <div class="filter-container">
+        <div>
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date">
+    
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date">
+
+            <!-- Dropdown for DC selection -->
+            <label for="dc_select">DC:</label>
+            <select id="dc_select" name="dc_select">
+                <option value="">All DCs</option>
+                {% for dc in dcs %} <!-- Replace 'dcs' with your DCs queryset -->
+                <option value="{{ dc.id }}">{{ dc }}</option>
+                {% endfor %}
+            </select>
+    
+            <button id="filter-button" onclick="applyFilters()">Apply Filter <i class="fas fa-filter"></i></button>
+            <div id="export-button" onclick="exportToExcel()"></div>
+        </div>
+        <div>
+            <p>Showing <strong>{{ repairs_count }}</strong> results from <strong>{{ formatted_start_date }}</strong> to <strong>{{ formatted_end_date }}</strong>.</p>
+        </div>
+    </div>
+    
+    
+    <table>
+        <tr>
+            <th>Date:</th>
+            <th>DC:</th>
+            <th>Route:</th>
+            <th>SKU:</th>
+            <th>LP:</th>
+            <th>Line Time:</th>
+            <th>Start Time:</th>
+            <th>End Time:</th>
+            <th>Time to Repair:</th>
+            <th>Repair Tech:</th>
+            <th>Damages:</th>
+            <th>Parts:</th>
+            <th>Status:</th>
+        </tr>
+        {% for piece in repairs %}
+        <tr>
+            <td>{{ piece.line_time|date:"m/d/Y" }}</td>
+            <td>{{ piece.dc }}</td>
+            <td>{{ piece.route }}</td>
+            <td>{{ piece.sku }}</td>
+            <td>{{ piece.lp|slice:":3"}}%{{piece.lp|slice:"-8:"}}</td>
+            <td>{{ piece.line_time|time:"" }}</td>
+            <td>{{ piece.start_time|time:"" }}</td>
+            <td>{{ piece.end_time|time:"" }}</td>
+            <td>
+                {% if piece.time_to_repair %}
+                    {{ piece.time_to_repair }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+            <td>{{ piece.associate.associate }}</td>
+            <td>
+                <div class="collapse-container">
+                    <div class="collapse-summary">
+                        {{ piece.repair.all|length }} Repaired
+                        <a href="#" class="collapse-toggle">Show</a>
+                    </div>
+                    <ul class="collapse-list">
+                        {% for repair in piece.repair.all %}
+                        <li>{{ repair.repair_type }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </td>
+            
+            <td>
+                <div class="collapse-container">
+                    <div class="collapse-summary">
+                        {{ piece.part.all|length }} Missing
+                        <a href="#" class="collapse-toggle">Show</a>
+                    </div>
+                    <ul class="collapse-list">
+                        {% for part in piece.part.all %}
+                        <li>{{ part.part_type }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </td>
+            <td>{{ piece.status }}</td>
+            
+            
+        </tr>
+        {% endfor %}
+</div>
+</div>
+<script>
+    function applyFilters() {
+    var startDate = document.getElementById("start_date").value;
+    var endDate = document.getElementById("end_date").value;
+    var dcSelect = document.getElementById("dc_select").value;
+
+    var url = window.location.href.split('?')[0];
+    var params = new URLSearchParams(window.location.search);
+
+    if (startDate) {
+      params.set('start_date', startDate);
+    } else {
+      params.delete('start_date');
+    }
+
+    if (endDate) {
+      params.set('end_date', endDate);
+    } else {
+      params.delete('end_date');
+    }
+
+    if (dcSelect) {
+      params.set('dc', dcSelect);
+    } else {
+      params.delete('dc');
+    }
+
+    window.location.href = url + '?' + params.toString();
+  }
+
+
+    document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('collapse-toggle')) {
+        event.preventDefault();
+        var container = event.target.closest('.collapse-container');
+        var list = container.querySelector('.collapse-list');
+        list.style.display = list.style.display === 'none' ? 'block' : 'none';
+        event.target.textContent = list.style.display === 'none' ? 'Show' : 'Hide';
+    }
+});
+
+    function exportToExcel() {
+        var url = window.location.href.split('?')[0];
+        var params = new URLSearchParams(window.location.search);
+
+        params.set('export_to_excel', 'true');
+
+        window.location.href = url + '?' + params.toString();
+    }
+
+
+</script>
+
+{% endblock %}
+```

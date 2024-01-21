@@ -1,0 +1,96 @@
+{% extends 'pointqueapp/base.html' %}
+{% load static %}
+{% block additional_css %}
+<link rel="stylesheet" href="{% static 'pointqueapp/css/tvdisplay.css' %}">
+{% endblock %}
+{% block content %}
+
+
+
+<div class="mainbody">
+    <div class="filter-container">
+        <form method="get" action="{% url 'pointqueapp:tv_display' %}">
+
+{% for route in all_routes %}
+<input type="checkbox" name="route" value="{{ route.route }}" id="route-{{ route.route }}"
+       {% if route.route in selected_route_codes %} checked {% endif %}>
+<label for="route-{{ route.route }}">{{ route.route }}</label>
+{% endfor %}
+
+
+            <button type="submit">Filter</button>
+        </form>
+    </div>
+
+    <div class="data">
+        <table>
+            
+            <tr>
+                <th>Date:</th>
+                <th>DC:</th>
+                <th>Route:</th>
+                <th>SKU:</th>
+                <th>LP:</th>
+                <th>Line Time:</th>
+                <th>Start Time:</th>
+                <th>End Time:</th>
+                <th>Time to Repair:</th>
+                <th>Repair Tech:</th>
+                <th>Damages:</th>
+                <th>Parts:</th>
+                <th>Status:</th>
+                
+            </tr>
+            
+            {% for piece in pieces %}
+                <tr>
+                    <td>{{ piece.line_time|date:"m/d/Y" }}</td>
+            <td>{{ piece.dc }}</td>
+            <td>{{ piece.route }}</td>
+            <td>{{ piece.sku }}</td>
+            <td>{{ piece.lp|slice:":3"}}%{{piece.lp|slice:"-8:"}}</td>
+            <td>{{ piece.line_time|time:"" }}</td>
+            <td>{{ piece.start_time|time:"" }}</td>
+            <td>{{ piece.end_time|time:"" }}</td>
+            <td>
+                {% if piece.time_to_repair %}
+                    {{ piece.time_to_repair }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+            <td>{{ piece.associate.associate }}</td>
+            <td>
+                <div class="collapse-container">
+                    <div class="collapse-summary">
+                        {{ piece.repair.all|length }} Repaired
+            
+                    </div>
+                    
+                </div>
+            </td>
+            
+            <td>
+                <div class="collapse-container">
+                    <div class="collapse-summary">
+                        {{ piece.part.all|length }} Missing
+                    </div>
+                    
+                </div>
+            </td>
+            <td>{{ piece.status }}</td>
+            
+            
+                    
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+<script>
+    setTimeout(function(){
+       window.location.reload(1);
+    }, 90000);
+</script>
+
+{% endblock %}
